@@ -11,20 +11,19 @@ export class AuthController {
 
     @Post('/signup')
     signup(@Body() authCredentialsDto:AuthDto, @Req() req:Request, @Body('password') pass:string):Promise<User>{
-        this.logger.log('1234');
-       this.logger.log(`${pass}+${authCredentialsDto.username}`);
         const user = this.authService.signup(authCredentialsDto);
         return user;      
     }
 
     @Post('/login')
     async signIn(@Body() authCredentialsDto: AuthDto, @Res() res: Response) {
+      this.logger.log(`${authCredentialsDto.username} + ${authCredentialsDto.password}`);
       const user = await this.authService.signIn(authCredentialsDto);
   
       if (!user) {
         throw new UnauthorizedException();
       }
-  
+      
       res.status(200).json(user);
     }
 }

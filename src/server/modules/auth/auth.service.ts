@@ -3,10 +3,12 @@ import { InjectRepository } from "@nestjs/typeorm";
 import { UsersRepository } from "./auth.repository";
 import { AuthDto } from "./dto/user.dto";
 import { User } from "./user.entity";
+import { DriverPackageNotInstalledError } from "typeorm";
 
 @Injectable()
 export class AuthService {
     private readonly logger = new Logger(AuthService.name);
+
     constructor(
        @InjectRepository(User)
         private readonly usersRepository: UsersRepository
@@ -15,7 +17,6 @@ export class AuthService {
     async signup(authCredentialDto:AuthDto): Promise<User>
     {
         const {username, password} = authCredentialDto;
-
         const user:User = this.usersRepository.create({
             username : username,
             password : password
@@ -26,14 +27,17 @@ export class AuthService {
     }
 
     async signIn(authCredentialDto: AuthDto): Promise<User>{
-        this.logger.log(`${authCredentialDto.username} `+ `${authCredentialDto.password}`);
+       // this.logger.log(`${authCredentialDto.username} `+ `${authCredentialDto.password}`);
         const {username, password } = authCredentialDto;
         const user = await this.usersRepository.findOne({
             where: {
               username,
             },
         });
-        this.logger.log(`${user.password}+${user.username}`);
-          return user;    
+        if(user.password==(password)){
+            return user;
+        }else{
+            return null;
+        }      
     }
 }
